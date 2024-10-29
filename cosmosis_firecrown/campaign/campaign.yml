@@ -24,6 +24,8 @@ runs:
     parent: sim_lssty1_shear
     pipeline:
     - after camb desi
+    components:
+    - add_desi
 
   # LSST Y1 shear + DESI Y1 BAO in w0wa
   - name: sim_lssty1_shear_desi_w0wa
