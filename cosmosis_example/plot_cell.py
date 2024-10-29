@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+from astropy.io import fits
 
 # Got total shear Cell for auto-correlation for bin 2 as an example.
 ell  = np.loadtxt('output_cosmosis_example/shear_cl/ell.txt')
@@ -21,3 +21,23 @@ plt.xlim(20,2000)
 plt.ylabel(r'$10^{7}\ell C_{\ell}^{\kappa \kappa, 22}$',fontsize=15)
 plt.xlabel(r'$\ell$',fontsize=15)
 plt.savefig('plots/model_shear_cl.png')
+
+
+
+lsst = fits.open('lssty10_srd_32pt_simulation.fits')
+select_bin1 = lsst['shear_cl'].data['bin1'] == 2
+select_bin2 = lsst['shear_cl'].data['bin2'] == 2
+ell_data = lsst['shear_cl'].data['ANG'][select_bin1 & select_bin2]
+cl_data = lsst['shear_cl'].data['VALUE'][select_bin1 & select_bin2]
+cl_error_data = np.diag(lsst['COVMAT'].data)[15*5:15*6]
+
+plt.clf()
+plt.errorbar(ell_data, cl_data*ell_data*1e7,yerr=ell_data*np.sqrt(cl_error_data)*1e7,fmt='o',ls='none',\
+    markersize=3.,color='teal',label='Simulated LSST Y10 shear data')
+plt.plot(ell, ell*cell_full*1e7, label=r'Modeled LSST Y10 $C_{\ell}$',color='black',lw=2)
+plt.legend(frameon=False)
+plt.xscale('log')
+plt.xlim(20,2000)
+plt.ylabel(r'$10^{7}\ell C_{\ell}^{\kappa \kappa, 22}$',fontsize=15)
+plt.xlabel(r'$\ell$',fontsize=15)
+plt.savefig('plots/model_data_shear_cl.png')

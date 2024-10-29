@@ -1,3 +1,5 @@
+# We define here all the details about the modeling and the likelihood
+# for firecrown.
 import os
 import sacc
 
@@ -16,11 +18,15 @@ def build_likelihood(_):
     ## photoz bias
     wl_pzshift = wl.PhotoZShift(sacc_tracer=f"src1")
 
+    # We create here the sources that will enter the cosmic shear correlation
+    # function. They are based on a tracer, which says which galaxies
+    # are contributing. Here we want shear for galaxies in bin 1.
     sources = {}
     sources[f"src1"] = wl.WeakLensing(
         sacc_tracer=f"src1", systematics=[lai_systematic, mbias, wl_pzshift]
     )
 
+    # Yay now we can compute the actual shear correlation function.
     stats = {}
     stats[f"galaxy_shear_cl_ee_src1_src1"] = TwoPoint(
         source0=sources[f"src1"],
@@ -28,6 +34,7 @@ def build_likelihood(_):
         sacc_data_type="galaxy_shear_cl_ee",
     )
 
+    # And now compute the likelihood for the above shear prediction.
     likelihood = ConstGaussian(statistics=list(stats.values()))
 
     sacc_data = sacc.Sacc.load_fits('temp_cov.sacc')
